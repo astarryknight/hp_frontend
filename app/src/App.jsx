@@ -4,28 +4,39 @@ import { CssVarsProvider, useColorScheme } from '@mui/joy/styles';
 import MapPicker from 'react-google-map-picker'
 import Moon from '@mui/icons-material/DarkMode';
 import Sun from '@mui/icons-material/LightMode';
+import HomeIcon from '@mui/icons-material/Home';
 import '@fontsource/inter';
 import './App.css';
 
 
 //Map
-const DefaultLocation = { lat: 10, lng: 106 };
+const DefaultLocation = { lat: 40.34, lng: -74.65 };
 const DefaultZoom = 10;
 
 /*TODO - FadeIn */
 
-function ThemeToggle() {
+function ThemeToggle({ icon }) {
   const { mode, setMode } = useColorScheme();
-  return (
-    <IconButton
-      onClick={() => {
-        setMode(mode === 'light' ? 'dark' : 'light');
-      }}
-      sx={{ backgroundColor: 'background.body', width: "2rem", height: "2rem" }}
-    >
-      {mode === 'light' ? <Sun /> : <Moon />}
-    </IconButton>
-  );
+  if (icon != "HomeButton") {
+    return (
+      <IconButton
+        onClick={() => {
+          setMode(mode === 'light' ? 'dark' : 'light');
+        }}
+        sx={{ backgroundColor: 'background.body', width: "2rem", height: "2rem" }}
+      >
+        {mode === 'light' ? <Sun /> : <Moon />}
+      </IconButton>
+    );
+  } else {
+    return (
+      <IconButton
+        sx={{ backgroundColor: 'background.body', width: "2rem", height: "2rem" }}
+      >
+        <HomeIcon />
+      </IconButton>
+    )
+  }
 }
 
 function LabeledInput({ placeholder, label, margin, width, required, id }) {
@@ -62,7 +73,6 @@ function Budget() {
           <Option value="dog">$ USD</Option>
           <Option value="cat">€ Euro</Option>
           <Option value="cat">¥ Yen</Option>
-          <Option value="cat">a</Option>
         </Select>
       </Sheet>
     </Sheet>
@@ -104,10 +114,6 @@ function Location() {
     <Sheet className="survey" sx={{ backgroundColor: 'background.level1', height: "fit-content", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
       <Typography fontSize="lg" fontWeight="lg" sx={{ marginTop: ".5rem" }}>4. Where are you studying?</Typography>
       <>
-        <button onClick={handleResetLocation}>Reset Location</button>
-        <label>Latitute:</label><input type='text' value={location.lat} disabled />
-        <label>Longitute:</label><input type='text' value={location.lng} disabled />
-        <label>Zoom:</label><input type='text' value={zoom} disabled />
 
         <MapPicker defaultLocation={defaultLocation}
           zoom={zoom}
@@ -121,7 +127,7 @@ function Location() {
   );
 }
 
-function QuestionBody({ progress, fname, setFName, lname, setLName, email, setEmail, password, setPassword, budget, setBudget, months, setMonths, location, setLocation }) {
+function QuestionBody({ newPage, progress, fname, setFName, lname, setLName, email, setEmail, password, setPassword, budget, setBudget, months, setMonths, location, setLocation }) {
   var p = [<PersonalInfo />, <Budget />, <Timeline />, <Location />]
   progress = progress / 33.33
   // if (progress == 0) {
@@ -148,9 +154,16 @@ function QuestionBody({ progress, fname, setFName, lname, setLName, email, setEm
   //     < Location />
   //   )
   // }
-  return (
-    p[progress]
-  )
+  if (newPage != true) {
+    return (
+      p[progress]
+    )
+  } else {
+    return (
+      <Typography>Hi</Typography>
+    )
+  }
+
 }
 
 async function getResponse(fname, lname, email, password, budget, months, location) {
@@ -183,8 +196,9 @@ async function getResponse(fname, lname, email, password, budget, months, locati
   //   return res
   // })
   if (response.ok) {
-    console.log("server got it")
-    var res = await fetch('http://localhost:3000/get_data/' + email).then(res => res.json()).then(data => {
+    var link = 'http://localhost:3000/get_data/' + 'whiteh4tter@gmail.com'
+    var res = await fetch(link).then(res => res.json()).then(data => {
+      console.log(data);
       alert(data);
     });
   }
@@ -207,6 +221,7 @@ async function gemini() {
 function App() {
 
   const [progress, setProgress] = useState(0);
+  const [newPage, setNewPage] = useState([0, 0]);
 
   // //information variables - REDUX
   const [fname, setFName] = useState("");
@@ -220,10 +235,14 @@ function App() {
   return (
     <CssVarsProvider>
       <Sheet className="main" sx={{ width: "100vw", height: "100vh", backgroundColor: 'background.body', padding: "0px", margin: "0px", display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-        <ThemeToggle />
+        <IconButton
+          sx={{ backgroundColor: 'background.body', width: "2rem", height: "2rem" }}
+        >
+          <HomeIcon />
+        </IconButton>
         <Sheet className="container" sx={{ width: "fit-content", maxWidth: "500px", height: "fit-content", display: "flex", flexDirection: "column", justifyContent: "flex-start", paddingTop: "2rem", backgroundColor: 'background.level1', borderRadius: "0.5rem", marginTop: "3rem", padding: "1rem" }}>
           <LinearProgress determinate value={progress} sx={{ size: "1rem", maxHeight: "fit-content", marginTop: "0" }} />
-          <QuestionBody progress={progress} fname={fname} setFName={setFName} lname={lname} setLName={setLName} email={email} setEmail={setEmail} password={password} setPassword={setPassword} budget={budget} setBudget={setBudget} months={months} setMonths={setMonths} location={location} setLocation={setLocation} />
+          <QuestionBody newPage={newPage} progress={progress} fname={fname} setFName={setFName} lname={lname} setLName={setLName} email={email} setEmail={setEmail} password={password} setPassword={setPassword} budget={budget} setBudget={setBudget} months={months} setMonths={setMonths} location={location} setLocation={setLocation} />
           <Sheet sx={{ backgroundColor: "inherit", display: "flex", width: "100%" }}>
             <Button sx={{ marginTop: "1rem", width: "49%", marginRight: "2%" }} disabled={progress <= 0 ? true : false} onClick={() => {
               setProgress(progress - 33.33);
@@ -232,7 +251,6 @@ function App() {
               if (progress >= 99.99) {
                 //submit data
                 //gemini();
-                console.log("hi")
                 getResponse({ fname, lname, email, password, budget, months, location });
               } else {
                 //next

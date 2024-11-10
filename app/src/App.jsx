@@ -194,14 +194,6 @@ async function getResponse(fname, lname, email, password, budget, months, locati
 async function gemini() {
   //LOCAL: http://localhost:3000/send_data
   //PROD: https://hackprincetonserver.vercel.app/send_data
-  var response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyABJnAuGl1Q3avq9-bPQo3FGdNNPRN140Y', {
-    method: "POST",
-    body: JSON.stringify({ "contents": [{ "parts": [{ "text": "Explain how AI works" }] }] }),
-    headers: {
-      "Content-Type": "application/json",
-    }
-  })
-  console.log(response.json);
   // if (response.ok) {
   //   fetch('https://hackprincetonserver.vercel.app/time').then(res => res.json()).then(data => {
   //     console.log(data.time)
